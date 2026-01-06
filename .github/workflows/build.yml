@@ -1,0 +1,39 @@
+name: Build AWS EFS Utils .deb package.
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Set a semver version to build'
+        required: true
+        type: string
+
+jobs:
+  build-deb:
+    name: Build the AWS EFS utils deb
+    runs-on: ubuntu-latest
+    env:
+      version: ${{ github.event.inputs.version }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Build .deb file
+        id: build
+        run: |
+          sudo apt-get install binutils -y
+          git config --global user.name 'GitHub Actions'
+          git config --global user.email 'no-reply@github.com'
+          git clone https://github.com/aws/efs-utils
+          cd efs-utils
+          git checkout "v$version"
+          /bin/sh build-deb.sh
+
+      - name: Publish package
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ env.version }}
+          name: efs-utils-v${{ env.version }}.deb
+          body: 'Automated release of AWS EFS Utils .deb package'
+          prerelease: false
+          files: efs-utils/build/*.deb
+          token: ${{ secrets.GITHUB_TOKEN }}
