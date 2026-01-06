@@ -31,9 +31,11 @@ jobs:
       - name: Publish package
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v${{ env.version }}
-          name: efs-utils-v${{ env.version }}.deb
+          tag_name: 'v${{ env.version }}'
+          name: 'v${{ env.version }}'
           body: 'Automated release of AWS EFS Utils .deb package'
+          repository: ashleyjackson/aws-efs-utils-builder
+          make_latest: true
           prerelease: false
           files: efs-utils/build/*.deb
           token: ${{ secrets.GITHUB_TOKEN }}
